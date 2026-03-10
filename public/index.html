@@ -780,20 +780,6 @@
       </div>
     </div>
 
-    <div class="task-card">
-      <div class="task-header">
-        <span class="task-badge mixed">Mixed</span>
-        <span class="task-name">Task 3 — Month-End Close &amp; Accruals</span>
-      </div>
-      <div class="task-desc">Complete an accruals schedule with urgency flags, audit a trial balance for classification errors, and build a close checklist tracker — all using Excel formulas.</div>
-      <div class="task-actions">
-        <a class="btn-download" href="/assets/task3_month_end_close.xlsx" download>⬇ Download Task 3</a>
-        <div class="upload-zone" id="zone3" onclick="document.getElementById('file3').click()">
-          <input type="file" id="file3" accept=".xlsx,.xls" onchange="handleFileSelect('file3','zone3','task3Label')">
-          <div class="upload-label" id="task3Label">Click to upload completed Task 3</div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- SUBMIT -->
@@ -922,12 +908,10 @@ async function submitExcel() {
   fd.append('submissionId', submissionId);
   const f1 = document.getElementById('file1').files[0];
   const f2 = document.getElementById('file2').files[0];
-  const f3 = document.getElementById('file3').files[0];
   if (f1) fd.append('task1', f1);
   if (f2) fd.append('task2', f2);
-  if (f3) fd.append('task3', f3);
 
-  if (!f1 && !f2 && !f3) {
+  if (!f1 && !f2) {
     document.getElementById('submitError2').textContent = 'Please upload at least one completed Excel task.';
     document.getElementById('submitError2').style.display = 'block';
     return;
