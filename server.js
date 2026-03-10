@@ -101,7 +101,6 @@ app.post('/api/submit-questionnaire', async (req, res) => {
 app.post('/api/upload-excel', upload.fields([
   { name: 'task1', maxCount: 1 },
   { name: 'task2', maxCount: 1 },
-  { name: 'task3', maxCount: 1 },
 ]), async (req, res) => {
   try {
     const { submissionId } = req.body;
@@ -115,7 +114,7 @@ app.post('/api/upload-excel', upload.fields([
 
     // Grade each uploaded task with Claude
     const scores = {};
-    for (const taskKey of ['task1', 'task2', 'task3']) {
+    for (const taskKey of ['task1', 'task2']) {
       if (req.files[taskKey]) {
         const fp = req.files[taskKey][0].path;
         scores[taskKey] = await gradeExcelWithClaude(taskKey, fp);
@@ -211,49 +210,24 @@ DEDUCT points for:
 Return a JSON object ONLY with no markdown: {"score": 0-100, "breakdown": {"sumifs_invoiced": 0-25, "sumifs_paid": 0-25, "balance_formula": 0-20, "if_flag": 0-15, "summary_sheet": 0-15}, "strengths": ["..."], "concerns": ["..."], "feedback": "2-3 sentence summary"}`,
 
     task2: `You are grading Task 2 (GL Variance Analysis) of an Accounting Coordinator assessment.
-The candidate was given a General Ledger dataset and had to complete:
-- Variance Analysis sheet: SUMIFS actuals, variance calculations, % variance, IF flags, RANK function
-- Account Lookup sheet: Dynamic INDEX/MATCH tool tied to a dropdown (cell B2)
-- Department Summary: SUMIFS by department, % of total, MAX/MIN to find highest/lowest dept
+The candidate was given Q3 2024 GL journal entry data across 6 accounts and had to complete a Variance Analysis sheet with these yellow cells:
+- Column C: SUMIFS formula to calculate total Q3 actual spend per account (cross-sheet reference to GL Data)
+- Column D: Pre-filled budget values (should NOT be changed)
+- Column E: $ Variance formula (Actual minus Budget)
+- Column F: % Variance formula ((Actual-Budget)/Budget), formatted as percentage
+- Column G: IF flag — 'REVIEW' if % variance > 10% or < -10%, otherwise blank
+- Summary section (4 cells): total actual, total budget, total variance, count of REVIEW flags
 
 GRADE on a scale of 0–100:
-1. (30pts) SUMIFS for Q3 actuals — correct cross-sheet formula syntax and accurate results
-2. (20pts) Variance calculations: $ and % variance formulas correct, no hardcodes
-3. (15pts) IF flag formula for variances >10%
-4. (20pts) INDEX/MATCH on Lookup sheet — truly dynamic (changing B2 updates all results), IFERROR wrapped
-5. (15pts) Department Summary complete with SUMIFS, % of total (absolute references), MAX/MIN
+1. (40pts) SUMIFS formulas — correct cross-sheet syntax, accurate results, no hardcoded values
+2. (20pts) $ Variance formula — correct subtraction, no hardcodes
+3. (20pts) % Variance formula — correct calculation, formatted as %
+4. (10pts) IF flag formula — correctly identifies accounts >10% or <-10% variance
+5. (10pts) Summary section — all 4 cells completed with formulas
 
-Bonus (up to +5): Nested IFS for CRITICAL/REVIEW/MONITOR/OK categories
+DEDUCT: Hardcoded values instead of formulas (-10 each), wrong formula type (-5), math errors (-8 each), incomplete cells (-5 each)
 
-DEDUCT: Hardcoded values (-10), broken references (-8), static (non-dynamic) lookup (-15)
-
-Return JSON ONLY: {"score": 0-100, "breakdown": {"sumifs_actuals": 0-30, "variance_formulas": 0-20, "if_flag": 0-15, "index_match": 0-20, "dept_summary": 0-15, "bonus": 0-5}, "strengths": ["..."], "concerns": ["..."], "feedback": "2-3 sentence summary"}`,
-
-    task3: `You are grading Task 3 (Month-End Close) of an Accounting Coordinator assessment.
-Three parts:
-PART A (Accruals sheet):
-- IF formula for action status (DONE/ACTION REQUIRED/CHECK)
-- TODAY()-based days calculation
-- Nested IF for urgency (OVERDUE/DUE SOON/ON TRACK)
-- SUMIF for outstanding pending total (cell B2)
-- SUMIF for dept summary area
-
-PART B (Trial Balance sheet):
-- % of total debits formula
-- IF formula to flag incorrect normal balance classifications (4 deliberate errors in the data)
-- BALANCED/OUT OF BALANCE check formula
-- Difference amount formula
-
-PART C (Close Checklist sheet):
-- IF formula: if Complete show TODAY() else blank
-- COUNTIF for completed/pending tasks
-- Completion % formula
-- ESCALATE flag for incomplete High priority tasks
-
-GRADE 0–100:
-Part A: 35pts, Part B: 35pts, Part C: 30pts
-
-Return JSON ONLY: {"score": 0-100, "breakdown": {"part_a": 0-35, "part_b": 0-35, "part_c": 0-30}, "strengths": ["..."], "concerns": ["..."], "feedback": "2-3 sentence summary"}`,
+Return JSON ONLY with no markdown: {"score": 0-100, "breakdown": {"sumifs": 0-40, "dollar_variance": 0-20, "pct_variance": 0-20, "if_flag": 0-10, "summary": 0-10}, "strengths": ["..."], "concerns": ["..."], "feedback": "2-3 sentence summary"}`,
   };
 
   try {
@@ -320,10 +294,10 @@ async function sendResultsEmail(record) {
   const overall = calcOverallScore(record);
   const scores  = record.excelScores || {};
 
-  const excelRows = ['task1', 'task2', 'task3'].map(k => {
+  const excelRows = ['task1', 'task2'].map(k => {
     const s = scores[k];
     if (!s) return '';
-    const taskNames = { task1: 'AP Reconciliation', task2: 'GL Variance Analysis', task3: 'Month-End Close' };
+    const taskNames = { task1: 'AP Reconciliation', task2: 'GL Variance Analysis' };
     return `
       <tr>
         <td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600">${taskNames[k]}</td>
