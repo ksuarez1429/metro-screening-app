@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accounting Coordinator Assessment — Metropolitan Holdings</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #B8962E;
+    --gold-light: #D4AF55;
+    --gold-pale: #F5E9C8;
+    --gold-bg: #FBF5E6;
+    --black: #111111;
+    --ink: #1E1E1E;
+    --mid: #6B6B6B;
+    --border: #DDD5C0;
+    --paper: #FAFAF7;
+    --card: #FFFFFF;
+    --green: #2E7D32;
+    --red: #C0392B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: var(--black);
+    padding: 0;
+    position: relative;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 40px 0;
+    gap: 20px;
+  }
+  .logo-img {
+    height: 68px;
+    filter: brightness(0) invert(1);
+  }
+  .header-divider {
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, #8B6914 0%, #D4AF55 30%, #B8962E 60%, #8B6914 100%);
+    margin-top: 20px;
+  }
+  .header-subtitle {
+    text-align: center;
+    padding: 16px 40px 20px;
+    background: var(--black);
+  }
+  .header-subtitle h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(20px, 3vw, 30px);
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .header-meta {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .header-meta span {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .meta-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: inline-block;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--black);
+    border-bottom: 2px solid var(--gold);
+    padding: 8px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .progress-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--gold);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .progress-track {
+    flex: 1; height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%);
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  .progress-pct {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section { margin-bottom: 56px; }
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .section-head::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0;
+    width: 80px; height: 2px;
+    background: var(--gold);
+  }
+  .section-icon {
+    width: 44px; height: 44px;
+    background: var(--black);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--black);
+  }
+  .section-sub {
+    font-size: 12px;
+    color: var(--mid);
+    margin-top: 2px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── QUESTION CARDS ── */
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .q-card:focus-within {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(184,150,46,0.12);
+  }
+  .q-card.answered {
+    border-left: 3px solid var(--gold);
+  }
+  .q-num {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+  .q-text {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .q-hint {
+    font-size: 12px;
+    color: var(--mid);
+    font-style: italic;
+    margin-bottom: 12px;
+  }
+
+  /* ── INPUTS ── */
+  textarea, input[type="text"], input[type="email"] {
+    width: 100%;
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 11px 14px;
+    outline: none;
+    transition: all 0.2s;
+    resize: vertical;
+  }
+  textarea:focus, input:focus {
+    border-color: var(--gold);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(184,150,46,0.1);
+  }
+  textarea { min-height: 100px; line-height: 1.6; }
+  .char-count { font-size: 11px; color: var(--mid); text-align: right; margin-top: 4px; }
+
+  /* ── RADIO / CHECKBOX ── */
+  .options { display: grid; gap: 8px; }
+  .opt-label {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.18s;
+    background: var(--paper);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .opt-label:hover { border-color: var(--gold); background: var(--gold-bg); }
+  .opt-label.selected { border-color: var(--gold); background: var(--gold-bg); font-weight: 500; }
+  .opt-label input[type="radio"], .opt-label input[type="checkbox"] {
+    width: auto; margin-top: 3px; flex-shrink: 0; accent-color: var(--gold);
+  }
+
+  /* ── LIKERT ── */
+  .likert-wrap { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; }
+  .likert-opt input { display: none; }
+  .likert-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 10px 4px;
+    border: 1px solid var(--border); border-radius: 7px;
+    cursor: pointer; background: var(--paper);
+    font-size: 11px; color: var(--mid);
+    min-height: 52px; justify-content: center;
+    transition: all 0.18s;
+  }
+  .likert-btn .num {
+    font-size: 18px; font-weight: 700; color: var(--ink);
+  }
+  .likert-opt input:checked + .likert-btn {
+    border-color: var(--gold); background: var(--gold); color: white;
+  }
+  .likert-opt input:checked + .likert-btn .num { color: white; }
+  .likert-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--mid); margin-top: 5px; }
+
+  /* ── APPLICANT INFO ── */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .info-grid { grid-template-columns: 1fr; } }
+  .field-label { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: var(--mid); text-transform: uppercase; margin-bottom: 5px; }
+
+  /* ── EXCEL TASK ZONE ── */
+  .excel-section {
+    background: var(--black);
+    border-radius: 14px;
+    padding: 36px;
+    margin-bottom: 56px;
+  }
+  .excel-section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    color: white;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .excel-section > p {
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .task-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(184,150,46,0.3);
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+  }
+  .task-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 10px;
+  }
+  .task-badge {
+    background: var(--gold);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .task-badge.advanced { background: #8B4513; }
+  .task-badge.mixed { background: #1A5276; }
+  .task-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: white;
+  }
+  .task-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .task-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .btn-download {
+    background: var(--gold);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 20px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.18s;
+  }
+  .btn-download:hover { background: var(--gold-light); }
+  .upload-zone {
+    border: 2px dashed rgba(184,150,46,0.4);
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 180px;
+  }
+  .upload-zone:hover { border-color: var(--gold); background: rgba(184,150,46,0.08); }
+  .upload-zone.uploaded { border-color: #2E7D32; background: rgba(46,125,50,0.12); }
+  .upload-zone input[type="file"] { display: none; }
+  .upload-label { font-size: 12px; color: rgba(255,255,255,0.5); cursor: pointer; }
+  .upload-zone.uploaded .upload-label { color: #81C784; font-weight: 600; }
+
+  /* ── SUBMIT ── */
+  .submit-zone {
+    background: var(--black);
+    border-radius: 14px;
+    padding: 36px;
+    text-align: center;
+    border-top: 4px solid var(--gold);
+  }
+  .submit-zone h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    color: white;
+    margin-bottom: 8px;
+  }
+  .submit-zone p { font-size: 14px; color: rgba(255,255,255,0.55); margin-bottom: 28px; line-height: 1.6; }
+  .btn-submit {
+    background: var(--gold);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 16px 52px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .btn-submit:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .submit-error { color: #EF9A9A; font-size: 13px; margin-top: 14px; }
+
+  /* ── SUCCESS ── */
+  #successScreen {
+    display: none;
+    max-width: 600px;
+    margin: 80px auto;
+    text-align: center;
+    padding: 20px;
+  }
+  .success-icon {
+    width: 80px; height: 80px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 24px;
+  }
+  #successScreen h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    color: var(--black);
+    margin-bottom: 12px;
+  }
+  #successScreen p { color: var(--mid); font-size: 15px; line-height: 1.7; }
+
+  .req { color: var(--gold); }
+  code { background: #f0f0ee; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="site-header">
+  <div class="header-top">
+    <img src="/assets/logo.jpg" alt="Metropolitan Holdings" class="logo-img">
+  </div>
+  <div class="header-subtitle">
+    <h1>Accounting Coordinator · Candidate Assessment</h1>
+    <div class="header-meta">
+      <span><span class="meta-dot"></span> ~15 minutes · Written Questions</span>
+      <span><span class="meta-dot"></span> 3 Excel Tasks · Live Spreadsheet Work</span>
+      <span><span class="meta-dot"></span> AI-Graded &amp; Reviewed by Hiring Team</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-wrap">
+  <span class="progress-label">Progress</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <span class="progress-pct" id="progressPct">0%</span>
+</div>
+
+<div class="container" id="formContainer">
+
+  <!-- APPLICANT INFO -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-icon">👤</div>
+      <div>
+        <div class="section-title">Your Information</div>
+        <div class="section-sub">Contact details for your application</div>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="info-grid">
+        <div>
+          <div class="field-label">Full Name <span class="req">*</span></div>
+          <input type="text" id="applicant_name" name="applicant_name" placeholder="Jane Smith" required>
+        </div>
+        <div>
+          <div class="field-label">Email Address <span class="req">*</span></div>
+          <input type="email" id="applicant_email" name="applicant_email" placeholder="jane@email.com" required>
+        </div>
+        <div>
+          <div class="field-label">Phone Number</div>
+          <input type="text" id="applicant_phone" name="applicant_phone" placeholder="(555) 000-0000">
+        </div>
+        <div>
+          <div class="field-label">Years of Accounting Experience</div>
+          <input type="text" name="years_experience" placeholder="e.g. 3 years">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: EXCEL & ACCOUNTING KNOWLEDGE -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-title">Excel &amp; Accounting Knowledge</div>
+        <div class="section-sub">7 questions · ~5 minutes</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q1 · Excel Proficiency</div>
+      <div class="q-text">How would you rate your Excel proficiency as it relates to accounting tasks? <span class="req">*</span></div>
+      <div class="options">
+        <label class="opt-label"><input type="radio" name="excel_level" value="Beginner – basic formulas, SUM, and simple formatting"> Beginner – I use basic formulas, SUM, and simple formatting</label>
+        <label class="opt-label"><input type="radio" name="excel_level" value="Intermediate – VLOOKUP, pivot tables, SUMIF, conditional formatting"> Intermediate – I use VLOOKUP, pivot tables, SUMIF, and conditional formatting for financial data</label>
+        <label class="opt-label"><input type="radio" name="excel_level" value="Advanced – multi-sheet reconciliation workbooks, INDEX/MATCH, nested IFs, Power Query"> Advanced – I build multi-sheet reconciliation workbooks, use INDEX/MATCH, nested IFs, and Power Query</label>
+        <label class="opt-label"><input type="radio" name="excel_level" value="Expert – automated financial reporting tools, dynamic arrays, VBA/macro experience"> Expert – I design automated financial reporting tools, use dynamic arrays, and have VBA/macro experience</label>
+      </div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q2 · Formula Interpretation</div>
+      <div class="q-text">You're reviewing an accounts payable workbook and find this formula in column D:<br><br><code>=SUMIFS(Invoices!$C:$C, Invoices!$A:$A, A2, Invoices!$D:$D, "Unpaid")</code><br><br>What does this formula calculate? <span class="req">*</span></div>
+      <div class="options">
+        <label class="opt-label"><input type="radio" name="formula_q" value="The total unpaid invoice amount for the vendor in cell A2"> The total unpaid invoice amount for the vendor in cell A2</label>
+        <label class="opt-label"><input type="radio" name="formula_q" value="The number of unpaid invoices across all vendors"> The number of unpaid invoices across all vendors</label>
+        <label class="opt-label"><input type="radio" name="formula_q" value="The average invoice value for the vendor in A2"> The average invoice value for the vendor in A2</label>
+        <label class="opt-label"><input type="radio" name="formula_q" value="Whether the vendor in A2 has any unpaid invoices (TRUE/FALSE)"> Whether the vendor in A2 has any unpaid invoices (TRUE/FALSE)</label>
+      </div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q3 · Reconciliation Scenario</div>
+      <div class="q-text">You're reconciling the company's bank statement to the general ledger for July. The bank balance is $142,380.00 but the GL shows $139,950.00 — a $2,430 difference. What is your step-by-step process to find and resolve this? <span class="req">*</span></div>
+      <div class="q-hint">Walk us through exactly how you'd approach this — process matters as much as the answer.</div>
+      <textarea name="reconciliation" placeholder="Step 1: …&#10;Step 2: …" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_reconciliation">0 characters</div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q4 · AP/AR Knowledge</div>
+      <div class="q-text">Which best describes the correct journal entry when a vendor invoice of $5,000 is received but not yet paid? <span class="req">*</span></div>
+      <div class="options">
+        <label class="opt-label"><input type="radio" name="journal_entry" value="Debit Accounts Payable $5,000 / Credit Cash $5,000"> Debit Accounts Payable $5,000 / Credit Cash $5,000</label>
+        <label class="opt-label"><input type="radio" name="journal_entry" value="Debit Expense $5,000 / Credit Accounts Payable $5,000"> Debit Expense $5,000 / Credit Accounts Payable $5,000</label>
+        <label class="opt-label"><input type="radio" name="journal_entry" value="Debit Cash $5,000 / Credit Revenue $5,000"> Debit Cash $5,000 / Credit Revenue $5,000</label>
+        <label class="opt-label"><input type="radio" name="journal_entry" value="Debit Accounts Receivable $5,000 / Credit Revenue $5,000"> Debit Accounts Receivable $5,000 / Credit Revenue $5,000</label>
+      </div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q5 · Month-End Close</div>
+      <div class="q-text">Describe your experience with month-end close. What tasks were you responsible for and what was the typical timeline? <span class="req">*</span></div>
+      <textarea name="month_end" placeholder="Describe your role, specific tasks (accruals, reconciliations, journal entries, etc.), and how close cycles were structured…" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_month_end">0 characters</div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q6 · Excel: Practical Problem</div>
+      <div class="q-text">You have a raw export with 3,000 rows: Column A = vendor names (inconsistent formatting), Column B = invoice dates, Column C = amounts. Your manager needs (1) total spend per vendor for Q3, and (2) any single invoice exceeding $10,000. How do you build this in Excel? <span class="req">*</span></div>
+      <textarea name="excel_task" placeholder="Walk through your approach — formulas, tools, or features you'd use for each part…" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_excel_task">0 characters</div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q7 · Accounting Software</div>
+      <div class="q-text">Which accounting systems or ERP platforms have you worked with? Check all that apply. <span class="req">*</span></div>
+      <div class="options">
+        <label class="opt-label"><input type="checkbox" name="software_quickbooks" value="QuickBooks"> QuickBooks (Desktop or Online)</label>
+        <label class="opt-label"><input type="checkbox" name="software_netsuite" value="NetSuite"> NetSuite</label>
+        <label class="opt-label"><input type="checkbox" name="software_sage" value="Sage / Sage Intacct"> Sage / Sage Intacct</label>
+        <label class="opt-label"><input type="checkbox" name="software_sap" value="SAP"> SAP</label>
+        <label class="opt-label"><input type="checkbox" name="software_dynamics" value="Microsoft Dynamics"> Microsoft Dynamics</label>
+        <label class="opt-label"><input type="checkbox" name="software_xero" value="Xero"> Xero</label>
+        <label class="opt-label"><input type="checkbox" name="software_other_check" value="Other"> Other</label>
+      </div>
+      <textarea name="software_detail" placeholder="Describe your experience level with each system and how long you used it…" style="margin-top:12px" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_software_detail">0 characters</div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: ATTENTION TO DETAIL -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-icon">🔍</div>
+      <div>
+        <div class="section-title">Attention to Detail</div>
+        <div class="section-sub">7 questions · ~5 minutes</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q8 · Trial Balance Error Spotting</div>
+      <div class="q-text">Review this trial balance excerpt carefully. How many errors can you identify? <span class="req">*</span>
+      <div style="background:#f8f6f0;border-left:3px solid var(--gold);border-radius:8px;padding:16px;margin-top:12px;font-size:13px;line-height:2;font-family:monospace">
+        <strong>Trial Balance – July 31</strong><br>
+        Cash &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dr &nbsp;$42,500<br>
+        Accounts Receivable &nbsp;&nbsp;&nbsp;&nbsp; Dr &nbsp;$18,200<br>
+        Accounts Payable &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dr &nbsp;$11,400<br>
+        Revenue &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dr &nbsp;$95,000<br>
+        Salaries Expense &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cr &nbsp;$38,000<br>
+        Office Supplies &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dr &nbsp;&nbsp;$1,200<br>
+        <strong>Total Debits: $161,900 &nbsp;&nbsp;&nbsp; Total Credits: $38,000</strong>
+      </div>
+      </div>
+      <div class="options" style="margin-top:14px">
+        <label class="opt-label"><input type="radio" name="trial_balance_count" value="1 error"> 1 error</label>
+        <label class="opt-label"><input type="radio" name="trial_balance_count" value="2 errors"> 2 errors</label>
+        <label class="opt-label"><input type="radio" name="trial_balance_count" value="3 errors"> 3 errors</label>
+        <label class="opt-label"><input type="radio" name="trial_balance_count" value="4 or more errors"> 4 or more errors</label>
+      </div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q8b · Error Explanation</div>
+      <div class="q-text">List each error you identified in the trial balance above and explain what's wrong. <span class="req">*</span></div>
+      <textarea name="error_explanation" placeholder="Error 1: …&#10;Error 2: …&#10;Error 3: …" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_error_explanation">0 characters</div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q9 · Invoice Review</div>
+      <div class="q-text">You're processing a vendor invoice for $8,750. The approved PO is $8,500, only 85% of goods were received, and the invoice says Net 15 but your contract says Net 30. What do you do before approving payment? <span class="req">*</span></div>
+      <textarea name="invoice_review" placeholder="Walk through each issue and how you'd handle it…" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_invoice_review">0 characters</div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q10 · Duplicate Detection</div>
+      <div class="q-text">Before submitting a batch of 200 invoices for approval, how do you ensure there are no duplicate payments? <span class="req">*</span></div>
+      <div class="options">
+        <label class="opt-label"><input type="radio" name="duplicate_check" value="Cross-reference invoice numbers, vendor names, amounts, and dates against payment history using VLOOKUP or Conditional Formatting, then flag any matches for review"> Cross-reference invoice #s, vendor names, amounts &amp; dates against payment history using VLOOKUP or Conditional Formatting, then flag any matches for review</label>
+        <label class="opt-label"><input type="radio" name="duplicate_check" value="Visually scan the list and trust the accounting system to catch duplicates"> Visually scan the list and trust the accounting system to catch duplicates automatically</label>
+        <label class="opt-label"><input type="radio" name="duplicate_check" value="Sort by amount and look for matching numbers"> Sort by amount and look for matching numbers</label>
+        <label class="opt-label"><input type="radio" name="duplicate_check" value="Rely on the approving manager to catch duplicates"> Rely on the approving manager to catch any duplicates</label>
+      </div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q11 · Caught a Mistake</div>
+      <div class="q-text">Tell us about a time you caught a significant financial or accounting error before it caused a problem. What was it, how did you catch it, and what happened? <span class="req">*</span></div>
+      <textarea name="mistake_catch" placeholder="Be specific — the type of error, how you caught it, and the outcome…" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_mistake_catch">0 characters</div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q12 · Close Day Prioritization</div>
+      <div class="q-text">It's the last day of month-end close. You have: (A) post two journal entries (~30 min each), (B) respond to an urgent audit document request from an hour ago, and (C) reconcile the credit card statement (~90 min). It's 3 PM, close is at 5 PM. How do you proceed? <span class="req">*</span></div>
+      <textarea name="prioritization" placeholder="Explain your order of operations and reasoning…" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_prioritization">0 characters</div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q13 · Organization Systems</div>
+      <div class="q-text">How do you stay on top of recurring accounting deadlines (weekly AP runs, monthly reconciliations, quarterly filings) while also managing ad hoc requests? <span class="req">*</span></div>
+      <textarea name="organization" placeholder="Describe your tools, systems, or habits — be specific…" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_organization">0 characters</div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: EMOTIONAL INTELLIGENCE -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-icon">🧠</div>
+      <div>
+        <div class="section-title">Professional Judgment &amp; Emotional Intelligence</div>
+        <div class="section-sub">6 questions · ~5 minutes</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q14 · Self-Rating</div>
+      <div class="q-text">Rate yourself honestly on these qualities. Self-awareness matters more than a perfect score. <span class="req">*</span></div>
+      <div style="display:grid;gap:22px;margin-top:4px">
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">Staying composed when close deadlines and competing requests stack up</div>
+          <div class="likert-wrap">
+            <label class="likert-opt"><input type="radio" name="eq_calm" value="1"><span class="likert-btn"><span class="num">1</span></span></label>
+            <label class="likert-opt"><input type="radio" name="eq_calm" value="2"><span class="likert-btn"><span class="num">2</span></span></label>
+            <label class="likert-opt"><input type="radio" name="eq_calm" value="3"><span class="likert-btn"><span class="num">3</span></span></label>
+            <label class="likert-opt"><input type="radio" name="eq_calm" value="4"><span class="likert-btn"><span class="num">4</span></span></label>
+            <label class="likert-opt"><input type="radio" name="eq_calm" value="5"><span class="likert-btn"><span class="num">5</span></span></label>
+          </div>
+          <div class="likert-labels"><span>Not my strength</span><span>Very strong</span></div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">Pushing back professionally when something doesn't look right financially</div>
+          <div class="likert-wrap">
+            <label class="likert-opt"><input type="radio" name="eq_pushback" value="1"><span class="likert-btn"><span class="num">1</span></span></label>
+            <label class="likert-opt"><input type="radio" name="eq_pushback" value="2"><span class="likert-btn"><span class="num">2</span></span></label>
+            <label class="likert-opt"><input type="radio" name="eq_pushback" value="3"><span class="likert-btn"><span class="num">3</span></span></label>
+            <label class="likert-opt"><input type="radio" name="eq_pushback" value="4"><span class="likert-btn"><span class="num">4</span></span></label>
+            <label class="likert-opt"><input type="radio" name="eq_pushback" value="5"><span class="likert-btn"><span class="num">5</span></span></label>
+          </div>
+          <div class="likert-labels"><span>Not my strength</span><span>Very strong</span></div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">Receiving critical feedback on your work without becoming defensive</div>
+          <div class="likert-wrap">
+            <label class="likert-opt"><input type="radio" name="eq_feedback" value="1"><span class="likert-btn"><span class="num">1</span></span></label>
+            <label class="likert-opt"><input type="radio" name="eq_feedback" value="2"><span class="likert-btn"><span class="num">2</span></span></label>
+            <label class="likert-opt"><input type="radio" name="eq_feedback" value="3"><span class="likert-btn"><span class="num">3</span></span></label>
+            <label class="likert-opt"><input type="radio" name="eq_feedback" value="4"><span class="likert-btn"><span class="num">4</span></span></label>
+            <label class="likert-opt"><input type="radio" name="eq_feedback" value="5"><span class="likert-btn"><span class="num">5</span></span></label>
+          </div>
+          <div class="likert-labels"><span>Not my strength</span><span>Very strong</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q15 · Difficult Conversation</div>
+      <div class="q-text">A department manager submits an expense report with charges that appear to violate company policy. They're senior to you and known to be difficult. How do you handle it? <span class="req">*</span></div>
+      <div class="options">
+        <label class="opt-label"><input type="radio" name="difficult_convo" value="Document the specific policy concern, approach them privately and respectfully to clarify, and escalate to my manager if unresolved"> Document the specific policy concern, approach them privately and respectfully, and escalate to my manager if unresolved</label>
+        <label class="opt-label"><input type="radio" name="difficult_convo" value="Approve it to avoid conflict and flag it informally to my manager"> Approve it to avoid conflict and flag it informally to my manager</label>
+        <label class="opt-label"><input type="radio" name="difficult_convo" value="Reject it without explaining why"> Reject it without explaining why</label>
+        <label class="opt-label"><input type="radio" name="difficult_convo" value="Ask a coworker to deal with it instead"> Ask a coworker to deal with it instead</label>
+      </div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q16 · Stress &amp; Close Season</div>
+      <div class="q-text">Tell us about a time you were overwhelmed by competing deadlines in a finance or accounting role. What happened, how did you cope, and what did you take away from it? <span class="req">*</span></div>
+      <textarea name="stress_story" placeholder="Be specific — describe the situation, what you did, and what you learned…" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_stress_story">0 characters</div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q17 · Integrity Scenario</div>
+      <div class="q-text">You come across financial data suggesting a colleague may be misappropriating funds — nothing confirmed, but something feels off. What do you do? <span class="req">*</span></div>
+      <div class="options">
+        <label class="opt-label"><input type="radio" name="integrity_q" value="Document what I observed specifically and factually, then raise it confidentially with my manager or the appropriate internal channel"> Document what I observed specifically and factually, then raise it confidentially with my manager or the appropriate internal channel</label>
+        <label class="opt-label"><input type="radio" name="integrity_q" value="Confront the colleague directly and ask them about it"> Confront the colleague directly and ask them about it</label>
+        <label class="opt-label"><input type="radio" name="integrity_q" value="Ignore it — it's not my responsibility and I might be wrong"> Ignore it — it's not my responsibility and I might be wrong</label>
+        <label class="opt-label"><input type="radio" name="integrity_q" value="Mention it to coworkers to get their take"> Mention it to coworkers to get their take</label>
+      </div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q18 · Feedback &amp; Growth</div>
+      <div class="q-text">Tell us about a piece of critical feedback you received about your accounting or analytical work that was hard to hear. How did you respond and what did you change as a result? <span class="req">*</span></div>
+      <textarea name="feedback_story" placeholder="Be candid — we value people who can reflect honestly and grow from feedback…" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_feedback_story">0 characters</div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q19 · Working Style</div>
+      <div class="q-text">What type of accounting environment brings out your best work — and what conditions make it hardest for you to perform well? <span class="req">*</span></div>
+      <textarea name="work_environment" placeholder="Be honest — this helps us understand where you'll thrive…" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_work_environment">0 characters</div>
+    </div>
+
+    <div class="q-card" data-q>
+      <div class="q-num">Q20 · Anything Else?</div>
+      <div class="q-text">Anything you'd like us to know that hasn't come up in this questionnaire?</div>
+      <textarea name="anything_else" placeholder="Optional…" oninput="updateChar(this)"></textarea>
+      <div class="char-count" id="cc_anything_else">0 characters</div>
+    </div>
+  </div>
+
+  <!-- EXCEL TASKS -->
+  <div class="excel-section" id="excelSection" style="display:none">
+    <h2>⬡ Live Excel Assessment</h2>
+    <p>Download each task file below, complete the work in Microsoft Excel (not Google Sheets), then upload your completed file. All answers must use formulas — no hardcoded values. You may complete the tasks in any order.</p>
+
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-badge">Intermediate</span>
+        <span class="task-name">Task 1 — Accounts Payable Reconciliation</span>
+      </div>
+      <div class="task-desc">Reconcile an invoice register against a payment log using SUMIFS and COUNTIFS. Identify outstanding vendor balances and complete a summary using INDEX/MATCH.</div>
+      <div class="task-actions">
+        <a class="btn-download" href="/assets/task1_ap_reconciliation.xlsx" download>⬇ Download Task 1</a>
+        <div class="upload-zone" id="zone1" onclick="document.getElementById('file1').click()">
+          <input type="file" id="file1" accept=".xlsx,.xls" onchange="handleFileSelect('file1','zone1','task1Label')">
+          <div class="upload-label" id="task1Label">Click to upload completed Task 1</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-badge advanced">Advanced</span>
+        <span class="task-name">Task 2 — General Ledger Variance Analysis</span>
+      </div>
+      <div class="task-desc">Analyze GL data across departments and periods. Build a dynamic INDEX/MATCH lookup tool and complete a department spend summary using nested formulas and RANK.</div>
+      <div class="task-actions">
+        <a class="btn-download" href="/assets/task2_gl_variance.xlsx" download>⬇ Download Task 2</a>
+        <div class="upload-zone" id="zone2" onclick="document.getElementById('file2').click()">
+          <input type="file" id="file2" accept=".xlsx,.xls" onchange="handleFileSelect('file2','zone2','task2Label')">
+          <div class="upload-label" id="task2Label">Click to upload completed Task 2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-badge mixed">Mixed</span>
+        <span class="task-name">Task 3 — Month-End Close &amp; Accruals</span>
+      </div>
+      <div class="task-desc">Complete an accruals schedule with urgency flags, audit a trial balance for classification errors, and build a close checklist tracker — all using Excel formulas.</div>
+      <div class="task-actions">
+        <a class="btn-download" href="/assets/task3_month_end_close.xlsx" download>⬇ Download Task 3</a>
+        <div class="upload-zone" id="zone3" onclick="document.getElementById('file3').click()">
+          <input type="file" id="file3" accept=".xlsx,.xls" onchange="handleFileSelect('file3','zone3','task3Label')">
+          <div class="upload-label" id="task3Label">Click to upload completed Task 3</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-zone">
+    <h3>Ready to Submit?</h3>
+    <p>Review your answers, then click below. Your written responses will be sent to the hiring team immediately. You'll be prompted to complete the Excel tasks on the next step.</p>
+    <button class="btn-submit" id="submitBtn" onclick="handleSubmit()">Submit Assessment →</button>
+    <div class="submit-error" id="submitError" style="display:none"></div>
+  </div>
+
+</div>
+
+<!-- SUCCESS -->
+<div id="successScreen">
+  <div class="success-icon">✓</div>
+  <h2>Assessment Complete</h2>
+  <p>Thank you for completing the Metropolitan Holdings Accounting Coordinator assessment.<br><br>Your responses and Excel work have been submitted. The hiring team will review everything and be in touch if there's a mutual fit.</p>
+</div>
+
+<script>
+let submissionId = null;
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+window.addEventListener('load', async () => {
+  const resp = await fetch('/api/start', { method: 'POST' });
+  const data = await resp.json();
+  submissionId = data.submissionId;
+  updateProgress();
+});
+
+// ── RADIO STYLING ─────────────────────────────────────────────────────────
+document.querySelectorAll('input[type="radio"]').forEach(r => {
+  r.addEventListener('change', function() {
+    document.querySelectorAll(`input[name="${this.name}"]`).forEach(x =>
+      x.closest('.opt-label')?.classList.remove('selected'));
+    this.closest('.opt-label')?.classList.add('selected');
+    updateProgress();
+  });
+});
+document.querySelectorAll('textarea, input[type="text"], input[type="email"]').forEach(el =>
+  el.addEventListener('input', updateProgress));
+document.querySelectorAll('input[type="checkbox"]').forEach(el =>
+  el.addEventListener('change', function() {
+    this.closest('.opt-label')?.classList.toggle('selected', this.checked);
+    updateProgress();
+  }));
+
+// ── PROGRESS ──────────────────────────────────────────────────────────────
+function updateProgress() {
+  const cards = document.querySelectorAll('[data-q]');
+  let answered = 0;
+  cards.forEach(card => {
+    const radios = [...card.querySelectorAll('input[type="radio"]')].some(r => r.checked);
+    const checks = [...card.querySelectorAll('input[type="checkbox"]')].some(r => r.checked);
+    const texts  = [...card.querySelectorAll('textarea, input[type="text"], input[type="email"]')].some(t => t.value.trim().length > 8);
+    if (radios || checks || texts) { answered++; card.classList.add('answered'); }
+    else card.classList.remove('answered');
+  });
+  const pct = Math.round((answered / cards.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+// ── CHAR COUNT ────────────────────────────────────────────────────────────
+function updateChar(el) {
+  const id = 'cc_' + el.name;
+  const el2 = document.getElementById(id);
+  if (el2) el2.textContent = el.value.length + ' characters';
+  updateProgress();
+}
+
+// ── FILE UPLOAD ───────────────────────────────────────────────────────────
+function handleFileSelect(inputId, zoneId, labelId) {
+  const file = document.getElementById(inputId).files[0];
+  if (!file) return;
+  document.getElementById(zoneId).classList.add('uploaded');
+  document.getElementById(labelId).textContent = '✓ ' + file.name;
+}
+
+// ── COLLECT ANSWERS ───────────────────────────────────────────────────────
+function collectAnswers() {
+  const data = {};
+  document.querySelectorAll('input[type="radio"]:checked').forEach(el => { if (el.name) data[el.name] = el.value; });
+  document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => { if (el.name) data[el.name] = el.value; });
+  document.querySelectorAll('textarea, input[type="text"], input[type="email"]').forEach(el => {
+    if (el.name && el.value.trim()) data[el.name] = el.value.trim();
+  });
+  return data;
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────────────────
+async function handleSubmit() {
+  const name  = document.getElementById('applicant_name').value.trim();
+  const email = document.getElementById('applicant_email').value.trim();
+  if (!name || !email) { showError('Please enter your name and email before submitting.'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try {
+    const r = await fetch('/api/submit-questionnaire', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ submissionId, answers: collectAnswers() })
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+
+    // Show Excel tasks
+    document.getElementById('excelSection').style.display = 'block';
+    document.querySelector('.submit-zone').innerHTML = `
+      <h3 style="color:white;font-family:'Cormorant Garamond',serif;font-size:26px;margin-bottom:8px">Step 2 — Upload Your Excel Files</h3>
+      <p style="color:rgba(255,255,255,0.6);font-size:14px;margin-bottom:28px">Your written responses have been saved. Now upload your completed Excel tasks above, then click below to finalize your submission.</p>
+      <button class="btn-submit" onclick="submitExcel()">Finalize &amp; Submit Excel Tasks →</button>
+      <div class="submit-error" id="submitError2" style="display:none"></div>
+    `;
+    document.getElementById('excelSection').scrollIntoView({ behavior: 'smooth' });
+  } catch(e) {
+    showError('Submission failed: ' + e.message);
+    btn.disabled = false; btn.textContent = 'Submit Assessment →';
+  }
+}
+
+async function submitExcel() {
+  const fd = new FormData();
+  fd.append('submissionId', submissionId);
+  const f1 = document.getElementById('file1').files[0];
+  const f2 = document.getElementById('file2').files[0];
+  const f3 = document.getElementById('file3').files[0];
+  if (f1) fd.append('task1', f1);
+  if (f2) fd.append('task2', f2);
+  if (f3) fd.append('task3', f3);
+
+  if (!f1 && !f2 && !f3) {
+    document.getElementById('submitError2').textContent = 'Please upload at least one completed Excel task.';
+    document.getElementById('submitError2').style.display = 'block';
+    return;
+  }
+
+  const btn = document.querySelector('.submit-zone button');
+  btn.disabled = true; btn.textContent = 'Grading with AI…';
+
+  try {
+    const r = await fetch('/api/upload-excel', { method: 'POST', body: fd });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+    document.getElementById('formContainer').style.display = 'none';
+    document.querySelector('.progress-wrap').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch(e) {
+    document.getElementById('submitError2').textContent = 'Upload failed: ' + e.message;
+    document.getElementById('submitError2').style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Finalize & Submit Excel Tasks →';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('submitError');
+  el.textContent = msg; el.style.display = 'block';
+}
+</script>
+</body>
+</html>

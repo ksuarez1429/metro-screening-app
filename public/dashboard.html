@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Screening Dashboard — Metropolitan Holdings</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #B8962E; --gold-light: #D4AF55; --gold-pale: #F5E9C8;
+    --black: #111111; --ink: #1E1E1E; --mid: #6B6B6B;
+    --border: #DDD5C0; --paper: #FAFAF7; --card: #FFFFFF;
+    --green: #2E7D32; --amber: #E65100; --red: #C0392B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Barlow', sans-serif; background: var(--paper); color: var(--ink); }
+
+  .site-header {
+    background: var(--black);
+    padding: 22px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 4px solid var(--gold);
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 16px; }
+  .logo-img { height: 44px; filter: brightness(0) invert(1); }
+  .header-title { color: white; font-size: 14px; font-weight: 600; letter-spacing: 1px; opacity: 0.7; }
+  .dash-label { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--gold); font-weight: 700; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 40px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 22px; position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--gold);
+  }
+  .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 700; color: var(--black); }
+  .stat-label { font-size: 12px; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 700; color: var(--black);
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .section-title::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; width: 60px; height: 2px; background: var(--gold);
+  }
+
+  .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 40px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: var(--black); color: white; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 12px 16px; text-align: left; }
+  td { padding: 14px 16px; border-bottom: 1px solid #f0ece0; font-size: 14px; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #FDFAF2; }
+  tr { cursor: pointer; }
+
+  .score-badge {
+    display: inline-block; padding: 3px 12px; border-radius: 20px;
+    font-weight: 700; font-size: 13px; color: white;
+  }
+  .score-green { background: var(--green); }
+  .score-amber { background: var(--amber); }
+  .score-red   { background: var(--red); }
+  .score-gray  { background: #888; }
+
+  .status-pill {
+    display: inline-block; padding: 2px 10px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .status-complete { background: #E8F5E9; color: var(--green); }
+  .status-awaiting { background: #FFF8E1; color: var(--amber); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 200;
+    overflow-y: auto; padding: 40px 20px;
+  }
+  .modal-overlay.open { display: flex; justify-content: center; }
+  .modal {
+    background: white; border-radius: 14px; max-width: 860px; width: 100%;
+    overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+    align-self: flex-start;
+  }
+  .modal-header {
+    background: var(--black); padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-name { font-family: 'Cormorant Garamond', serif; font-size: 26px; color: white; font-weight: 700; }
+  .modal-meta { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+  .modal-close {
+    background: rgba(255,255,255,0.1); border: none; color: white;
+    width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+    font-size: 18px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .modal-body { padding: 28px; max-height: 70vh; overflow-y: auto; }
+
+  .excel-scores { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+  .excel-score-card {
+    background: var(--paper); border: 1px solid var(--border); border-radius: 8px; padding: 16px;
+  }
+  .excel-score-card .task-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--mid); margin-bottom: 6px; }
+  .excel-score-card .big-score { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 700; }
+  .excel-score-card .feedback { font-size: 12px; color: var(--mid); margin-top: 6px; line-height: 1.5; }
+  .strengths { margin-top: 8px; }
+  .strength-item { font-size: 12px; color: var(--green); }
+  .concern-item  { font-size: 12px; color: var(--red); }
+
+  .qa-section { margin-top: 24px; }
+  .qa-group-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700;
+    color: var(--black); margin-bottom: 12px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--border); position: relative;
+  }
+  .qa-group-title::after { content:''; position:absolute; bottom:-1px; left:0; width:40px; height:2px; background:var(--gold); }
+  .qa-item { margin-bottom: 14px; }
+  .qa-q { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gold); margin-bottom: 4px; }
+  .qa-a { font-size: 14px; color: var(--ink); line-height: 1.6; background: var(--paper); padding: 10px 14px; border-radius: 6px; border-left: 2px solid var(--border); }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--mid); }
+  .empty-state h3 { font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 8px; color: var(--ink); }
+
+  @media (max-width: 768px) {
+    .stats-row { grid-template-columns: repeat(2,1fr); }
+    .excel-scores { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <div class="logo-wrap">
+    <img src="/assets/logo.jpg" alt="Metropolitan Holdings" class="logo-img">
+    <div>
+      <div class="header-title">Human Resources</div>
+      <div class="dash-label">Hiring Dashboard</div>
+    </div>
+  </div>
+  <div style="color:rgba(255,255,255,0.4);font-size:12px;font-weight:600;letter-spacing:1px">ACCOUNTING COORDINATOR · CANDIDATE RESULTS</div>
+</div>
+
+<div class="container">
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Total Submissions</div></div>
+    <div class="stat-card"><div class="stat-num" id="statComplete">—</div><div class="stat-label">Complete (w/ Excel)</div></div>
+    <div class="stat-card"><div class="stat-num" id="statAvgScore">—</div><div class="stat-label">Avg Excel Score</div></div>
+    <div class="stat-card"><div class="stat-num" id="statTop">—</div><div class="stat-label">Top Score</div></div>
+  </div>
+
+  <div class="section-title">All Candidates</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>Email</th>
+          <th>Submitted</th>
+          <th>Task 1</th>
+          <th>Task 2</th>
+          <th>Task 3</th>
+          <th>Avg Score</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="submissionsTbody">
+        <tr><td colspan="8" style="text-align:center;color:var(--mid);padding:40px">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div>
+        <div class="modal-name" id="modalName">—</div>
+        <div class="modal-meta" id="modalMeta">—</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('modalOverlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody">Loading…</div>
+  </div>
+</div>
+
+<script>
+async function loadDashboard() {
+  const resp = await fetch('/api/submissions');
+  const data = await resp.json();
+
+  // Stats
+  const complete = data.filter(d => d.status === 'complete');
+  const scores   = complete.map(d => d.overallScore).filter(Boolean);
+  document.getElementById('statTotal').textContent   = data.length;
+  document.getElementById('statComplete').textContent = complete.length;
+  document.getElementById('statAvgScore').textContent = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : '—';
+  document.getElementById('statTop').textContent      = scores.length ? Math.max(...scores) : '—';
+
+  const tbody = document.getElementById('submissionsTbody');
+
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><h3>No submissions yet</h3><p>Share the assessment link with candidates to get started.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(s => {
+    const t1 = s.excelScores?.task1?.score;
+    const t2 = s.excelScores?.task2?.score;
+    const t3 = s.excelScores?.task3?.score;
+    const scoreCell = v => v != null
+      ? `<span class="score-badge ${v>=80?'score-green':v>=65?'score-amber':'score-red'}">${v}</span>`
+      : `<span style="color:#bbb">—</span>`;
+    const statusClass = s.status === 'complete' ? 'status-complete' : 'status-awaiting';
+    const statusLabel = s.status === 'complete' ? 'Complete' : 'Awaiting Excel';
+    return `<tr onclick="openDetail('${s.submissionId}')">
+      <td><strong>${s.name}</strong></td>
+      <td style="color:var(--mid)">${s.email}</td>
+      <td style="color:var(--mid);font-size:13px">${new Date(s.submittedAt).toLocaleDateString()}</td>
+      <td>${scoreCell(t1)}</td>
+      <td>${scoreCell(t2)}</td>
+      <td>${scoreCell(t3)}</td>
+      <td>${s.overallScore != null ? `<strong style="font-size:16px">${s.overallScore}</strong><span style="color:var(--mid);font-size:12px">/100</span>` : '—'}</td>
+      <td><span class="status-pill ${statusClass}">${statusLabel}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+async function openDetail(id) {
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('modalBody').innerHTML = '<div style="text-align:center;padding:40px;color:var(--mid)">Loading…</div>';
+
+  const resp = await fetch(`/api/submissions/${id}`);
+  const s = await resp.json();
+
+  document.getElementById('modalName').textContent = s.applicant.name;
+  document.getElementById('modalMeta').textContent =
+    `${s.applicant.email}  ·  ${s.applicant.phone || 'No phone'}  ·  Submitted ${new Date(s.submittedAt).toLocaleString()}`;
+
+  const es = s.excelScores || {};
+  const taskNames = { task1: 'Task 1 · AP Reconciliation', task2: 'Task 2 · GL Variance', task3: 'Task 3 · Month-End Close' };
+  const scoreColor = v => v == null ? '#888' : v >= 80 ? 'var(--green)' : v >= 65 ? 'var(--amber)' : 'var(--red)';
+
+  const excelHtml = Object.entries(taskNames).map(([k, name]) => {
+    const t = es[k];
+    if (!t) return `<div class="excel-score-card"><div class="task-name">${name}</div><div style="color:var(--mid);font-size:13px">Not submitted</div></div>`;
+    const strengths = (t.strengths||[]).map(s=>`<div class="strength-item">✓ ${s}</div>`).join('');
+    const concerns  = (t.concerns||[]).map(s=>`<div class="concern-item">✗ ${s}</div>`).join('');
+    return `<div class="excel-score-card">
+      <div class="task-name">${name}</div>
+      <div class="big-score" style="color:${scoreColor(t.score)}">${t.score ?? '—'}<span style="font-size:16px;color:var(--mid)">/100</span></div>
+      <div class="feedback">${t.feedback || ''}</div>
+      <div class="strengths">${strengths}${concerns}</div>
+    </div>`;
+  }).join('');
+
+  const ans = s.answers || {};
+  const qMap = {
+    'Excel & Accounting': {
+      'excel_level':'Excel Proficiency', 'formula_q':'SUMIFS Formula', 'reconciliation':'Reconciliation Process',
+      'journal_entry':'Journal Entry', 'month_end':'Month-End Experience', 'excel_task':'Excel Practical',
+      'software_detail':'Accounting Software'
+    },
+    'Attention to Detail': {
+      'trial_balance_count':'Trial Balance Errors Found', 'error_explanation':'Error Explanation',
+      'invoice_review':'Invoice Review Process', 'duplicate_check':'Duplicate Detection',
+      'mistake_catch':'Caught a Mistake', 'prioritization':'Close Day Prioritization', 'organization':'Organization Systems'
+    },
+    'Emotional Intelligence': {
+      'eq_calm':'EQ · Calm Under Pressure', 'eq_pushback':'EQ · Professional Pushback',
+      'eq_feedback':'EQ · Receiving Feedback', 'difficult_convo':'Difficult Conversation',
+      'stress_story':'Stress & Close Season', 'integrity_q':'Integrity Scenario',
+      'feedback_story':'Feedback & Growth', 'work_environment':'Working Style', 'anything_else':'Additional Comments'
+    }
+  };
+
+  const qaHtml = Object.entries(qMap).map(([group, qs]) => {
+    const items = Object.entries(qs).map(([k, label]) => {
+      const v = ans[k];
+      if (!v) return '';
+      return `<div class="qa-item"><div class="qa-q">${label}</div><div class="qa-a">${String(v).replace(/\n/g,'<br>')}</div></div>`;
+    }).join('');
+    if (!items) return '';
+    return `<div class="qa-section"><div class="qa-group-title">${group}</div>${items}</div>`;
+  }).join('');
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="excel-scores">${excelHtml}</div>
+    ${qaHtml}
+  `;
+}
+
+function closeModal(e) {
+  if (e.target.id === 'modalOverlay') document.getElementById('modalOverlay').classList.remove('open');
+}
+
+loadDashboard();
+setInterval(loadDashboard, 30000); // auto-refresh every 30s
+</script>
+</body>
+</html>
