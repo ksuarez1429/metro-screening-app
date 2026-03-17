@@ -127,7 +127,11 @@ app.post('/api/upload-excel', upload.fields([
     fs.writeFileSync(file, JSON.stringify(record, null, 2));
 
     // Send results email
-    await sendResultsEmail(record);
+    try {
+      await sendResultsEmail(record);
+    } catch (emailErr) {
+      console.error('Email send failed (non-fatal):', emailErr);
+    }
 
     console.log(`[${new Date().toISOString()}] Excel graded & email sent: ${submissionId}`);
     res.json({ ok: true, scores });
@@ -239,7 +243,7 @@ Return JSON ONLY with no markdown: {"score": 0-100, "breakdown": {"sumifs": 0-40
         'anthropic-version' : '2023-06-01',
       },
       body: JSON.stringify({
-        model      : 'claude-opus-4-5',
+        model      : 'claude-sonnet-4-6',
         max_tokens : 1500,
         messages   : [{
           role    : 'user',
